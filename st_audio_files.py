@@ -46,9 +46,14 @@ def login(email, password):
         'email': email,
         'password': password
     }
-
+    if not email:
+        st.warning("please enter your email")
+    if not password:
+        st.warning("please enter your password")
     login_post_url = "https://marugoto.jpf.go.jp/en/form/login"
     response = session.post(login_post_url, data=login_data)
+    if "E-mail address or password is incorrect." in response.text:
+        st.warning("E-Mail address or password is incorrect")
 
     if "Download Materials" in response.text or "My Account" in response.text:
         return session
@@ -105,13 +110,13 @@ def main():
         with row2:
             st.session_state.book = st.session_state.books[st.selectbox(options=["Rikai", "Katsudo"], label="どの本？")]
         with row3:
-            st.session_state.lesson = st.number_input("lesson", step=1)
+            st.session_state.lesson = st.number_input("lesson", step=1, min_value=1)
 
         if st.session_state.session:
             audio_sources, audio_names = get_audio_sources(st.session_state.session, st.session_state.level, st.session_state.book, st.session_state.lesson)
 
             if audio_sources:
-                selected_name = st.sidebar.selectbox("Audio Datei auswählen", audio_names)
+                selected_name = st.sidebar.radio("Audio Datei auswählen", audio_names)
 
                 selected_source = audio_sources[audio_names.index(selected_name)]
                 if selected_source:
